@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>All Users - Admin</title>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 2rem;
+      background: #f8f9fa;
+    }
+    h2 {
+      color: #333;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    th, td {
+      padding: 0.8rem;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    #logoutBtn {
+      margin-bottom: 1rem;
+      padding: 8px 16px;
+      background-color: #d9534f;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h2>👥 All Registered Users</h2>
+  <button id="logoutBtn" onclick="logout()">Logout</button>
+  <table>
+    <thead>
+      <tr>
+        <th>Username</th>
+        <th>Phone Number</th>
+      </tr>
+    </thead>
+    <tbody id="usersTableBody"></tbody>
+  </table>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC-eIJ4Cmrvn38xOIp31zK1SvQFymdKCNA",
+      authDomain: "aipowered-bfb63.firebaseapp.com",
+      databaseURL: "https://aipowered-bfb63-default-rtdb.firebaseio.com",
+      projectId: "aipowered-bfb63",
+      storageBucket: "aipowered-bfb63.appspot.com",
+      messagingSenderId: "1020732214288",
+      appId: "1:1020732214288:web:c726f6e69d77bf260b8e95"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    function logout() {
+      auth.signOut().then(() => window.location.href = "login.html");
+    }
+
+    auth.onAuthStateChanged(user => {
+      if (user) {
+        loadUsers();
+      } else {
+        window.location.href = "login.html";
+      }
+    });
+
+    function loadUsers() {
+      const tbody = document.getElementById("usersTableBody");
+      db.ref("users").once("value", snapshot => {
+        tbody.innerHTML = "";
+        snapshot.forEach(child => {
+          const data = child.val();
+          const row = `<tr>
+            <td>${data.username}</td>
+            <td>${data.phone}</td>
+          </tr>`;
+          tbody.innerHTML += row;
+        });
+      });
+    }
+  </script>
+</body>
+</html>

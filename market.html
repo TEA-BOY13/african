@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>MarketPulse Admin Panel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 1rem;
+      background: #f0f8ff;
+      color: #333;
+      text-align: center;
+    }
+    h1 {
+      color: #2a4d69;
+      font-size: large;
+      margin-bottom: 0.5rem;
+    }
+    .form-section {
+      background: #fff;
+      padding: 1rem;
+      margin: 1rem auto;
+      max-width: 500px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      text-align: left;
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: bold;
+    }
+    select, input[type="number"] {
+      width: 100%;
+      padding: 0.6rem;
+      margin-top: 0.4rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+      font-size: 1rem;
+    }
+    button {
+      margin-top: 1rem;
+      padding: 10px 15px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    .price-box {
+      margin: 2rem auto;
+      padding: 1rem;
+      max-width: 500px;
+      background-color: #ffffff;
+      border: 2px dashed #ccc;
+      border-radius: 12px;
+      font-size: 1.2rem;
+      color: #222;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
+    }
+    table th, table td {
+      padding: 0.6rem;
+      border-bottom: 1px solid #ccc;
+    }
+    table th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="title">📊 MarketPrice Update and Prediction Admin</h1>
+  <p id="subtitle">Add and Update Product Prices on Your Local Area</p>
+
+  <div class="form-section">
+    <label for="language">🌐 Language:</label>
+    <select id="language" onchange="switchLanguage()">
+      <option value="en">English</option>
+      <option value="sw">Swahili</option>
+      <option value="yo">Yoruba</option>
+      <option value="ig">Igbo</option>
+      <option value="ha">Hausa</option>
+      <option value="ar">Arabic</option>
+    </select>
+
+    <label for="market" id="labelMarket">Market Location:</label>
+    <select id="market" onchange="loadSelectedMarketPrices()">
+      <option value="Potiskum">Potiskum</option>
+      <option value="Damaturu">Damaturu</option>
+      <option value="Maiduguri">Maiduguri</option>
+      <option value="Abuja">Abuja</option>
+      <option value="Lagos">Lagos</option>
+    </select>
+
+    <label for="product" id="labelProduct">Product:</label>
+    <select id="product"></select>
+
+    <button id="viewBtn" onclick="getPrice()">View Price</button>
+  </div>
+
+  <div id="result" class="price-box"></div>
+
+  <div class="form-section">
+    <h2 id="submitTitle">📥 Submit a Price</h2>
+    <input type="number" id="newPrice" placeholder="Enter price in ₦">
+    <button id="submitBtn" onclick="submitPrice()">Submit</button>
+  </div>
+
+  <div class="form-section">
+    <h2>📋 All Market Prices</h2>
+    <div id="allMarketsContainer"></div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC-eIJ4Cmrvn38xOIp31zK1SvQFymdKCNA",
+      authDomain: "aipowered-bfb63.firebaseapp.com",
+      projectId: "aipowered-bfb63",
+      storageBucket: "aipowered-bfb63.appspot.com",
+      messagingSenderId: "1020732214288",
+      appId: "1:1020732214288:web:c726f6e69d77bf260b8e95",
+      measurementId: "G-PYFE0BJLMF"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const translations = {
+      en: {
+        title: "📊 MarketPrice Update and Prediction Admin", subtitle: "Add and Update Product Prices on Your Local Area",
+        marketLabel: "Market Location:", productLabel: "Product:", viewBtn: "View Price",
+        submitTitle: "📥 Submit a Price", submitBtn: "Submit",
+        products: {
+          Sorghum: "Sorghum", Groundnut: "Groundnut", Millet: "Millet",
+          Corn: "Corn", "Red Beans": "Red Beans", "White Beans": "White Beans",
+          Rice: "Rice", Maize: "Maize"
+        }
+      },
+      sw: {
+        title: "📊 Dashibodi ya Bei ya Soko", subtitle: "Ongeza na Sasisha Bei ya Bidhaa kwa Eneo Lako",
+        marketLabel: "Soko:", productLabel: "Bidhaa:", viewBtn: "Angalia Bei",
+        submitTitle: "📥 Tuma Bei", submitBtn: "Tuma",
+        products: {
+          Sorghum: "Mtama", Groundnut: "Karanga", Millet: "Uwele",
+          Corn: "Mahindi", "Red Beans": "Maharagwe Mekundu", "White Beans": "Maharagwe Meupe",
+          Rice: "Mchele", Maize: "Mahindi"
+        }
+      },
+      yo: {
+        title: "📊 Iṣakoso Ọja ati Imudojuiwọn", subtitle: "Fi kun ki o ṣe imudojuiwọn awọn owo ọja agbegbe rẹ",
+        marketLabel: "Ọja:", productLabel: "Ọja naa:", viewBtn: "Wo Iye",
+        submitTitle: "📥 Fi Iye Ọja Ranṣẹ", submitBtn: "Firanṣẹ",
+        products: {
+          Sorghum: "Dawa", Groundnut: "Epa", Millet: "Okababa",
+          Corn: "Agbado", "Red Beans": "Ewa pupa", "White Beans": "Ewa funfun",
+          Rice: "Iresi", Maize: "Agbado"
+        }
+      },
+      ig: {
+        title: "📊 Nchịkọta Ahịa na Nwelite", subtitle: "Tinye ma melite ọnụ ahịa ngwaahịa n’ógbè gị",
+        marketLabel: "Ahịa:", productLabel: "Ngwaahịa:", viewBtn: "Lee Ọnụahịa",
+        submitTitle: "📥 Nyefee Ọnụahịa", submitBtn: "Nyefee",
+        products: {
+          Sorghum: "Oka Dawa", Groundnut: "Aki Ukpa", Millet: "Acha",
+          Corn: "Oka", "Red Beans": "Agwa Ọbara", "White Beans": "Agwa Ọcha",
+          Rice: "Osikapa", Maize: "Oka"
+        }
+      },
+      ha: {
+        title: "📊 Sabon Shafin Farashin Kasuwa", subtitle: "Ƙara da Sabunta Farashin Samfura a Yankinku",
+        marketLabel: "Wurin Kasuwa:", productLabel: "Samfur:", viewBtn: "Duba Farashi",
+        submitTitle: "📥 Gabatar da Farashi", submitBtn: "Aika",
+        products: {
+          Sorghum: "Dawa", Groundnut: "Gyada", Millet: "Gero",
+          Corn: "Masara", "Red Beans": "Wake Ja", "White Beans": "Wake Fari",
+          Rice: "Shinkafa", Maize: "Masara"
+        }
+      },
+      ar: {
+        title: "📊 تحديث وتنبؤ أسعار السوق", subtitle: "أضف وحدث أسعار المنتجات في منطقتك المحلية",
+        marketLabel: "الموقع:", productLabel: "المنتج:", viewBtn: "عرض السعر",
+        submitTitle: "📥 إرسال السعر", submitBtn: "إرسال",
+        products: {
+          Sorghum: "الذرة الرفيعة", Groundnut: "الفول السوداني", Millet: "الدخن",
+          Corn: "الذرة", "Red Beans": "فاصولياء حمراء", "White Beans": "فاصولياء بيضاء",
+          Rice: "أرز", Maize: "ذرة"
+        }
+      }
+    };
+
+    let currentLang = "en";
+
+    function switchLanguage() {
+      currentLang = document.getElementById("language").value;
+      localStorage.setItem("lang", currentLang);
+      document.body.dir = currentLang === "ar" ? "rtl" : "ltr";
+      const t = translations[currentLang];
+      document.getElementById("title").innerText = t.title;
+      document.getElementById("subtitle").innerText = t.subtitle;
+      document.getElementById("labelMarket").innerText = t.marketLabel;
+      document.getElementById("labelProduct").innerText = t.productLabel;
+      document.getElementById("viewBtn").innerText = t.viewBtn;
+      document.getElementById("submitTitle").innerText = t.submitTitle;
+      document.getElementById("submitBtn").innerText = t.submitBtn;
+
+      const productSelect = document.getElementById("product");
+      productSelect.innerHTML = "";
+      Object.keys(t.products).forEach(key => {
+        const option = document.createElement("option");
+        option.value = key;
+        option.text = t.products[key];
+        productSelect.appendChild(option);
+      });
+
+      loadSelectedMarketPrices();
+    }
+
+    function getPrice() {
+      const market = document.getElementById('market').value;
+      const product = document.getElementById('product').value;
+      const refPath = `prices/${market}/${product}`;
+      db.ref(refPath).once('value', snapshot => {
+        const price = snapshot.val();
+        const resultBox = document.getElementById('result');
+        const translatedName = translations[currentLang].products[product] || product;
+        if (price) {
+          resultBox.innerHTML = `<strong>${translatedName}</strong> @ <strong>${market}</strong>: ₦${price}`;
+        } else {
+          resultBox.innerHTML = `No price available for ${translatedName} at ${market}.`;
+        }
+      });
+    }
+
+    function submitPrice() {
+      const market = document.getElementById('market').value;
+      const product = document.getElementById('product').value;
+      const newPrice = document.getElementById('newPrice').value;
+      const refPath = `prices/${market}/${product}`;
+
+      if (!newPrice || isNaN(newPrice) || Number(newPrice) <= 0) {
+        Swal.fire({
+              icon:'warning',
+              title:'PRICE',
+              text:'please enter a valid price',
+              footer:'&copyTea-boy13 2025'
+          });
+        return;
+      }
+
+      db.ref(refPath).set(Number(newPrice))
+        .then(() => {
+          getPrice();
+          loadSelectedMarketPrices();
+          document.getElementById('newPrice').value = '';
+           Swal.fire({
+              icon:'success',
+              title:'PREDICTION',
+              text:'price prediction successful',
+              footer:'&copyTea-boy13 2025'
+          });
+        })
+        .catch(error => {
+          console.error("Error submitting price:", error);
+          alert("❌ Error submitting price. Try again.");
+        });
+    }
+
+    function loadSelectedMarketPrices() {
+      const selectedMarket = document.getElementById('market').value;
+      const container = document.getElementById('allMarketsContainer');
+      container.innerHTML = '<p>Loading prices...</p>';
+
+      db.ref(`prices/${selectedMarket}`).once('value', snapshot => {
+        const productPrices = snapshot.val();
+        container.innerHTML = '';
+        if (!productPrices) {
+          container.innerHTML = `<p>No prices available for ${selectedMarket}.</p>`;
+          return;
+        }
+
+        const sortedProducts = Object.keys(productPrices).sort();
+        const section = document.createElement('div');
+        section.innerHTML = `
+          <h3 style="color:#2a4d69">${selectedMarket}</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th style="text-align:right">Price (₦)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${sortedProducts.map(product => `
+                <tr>
+                  <td>${translations[currentLang]?.products?.[product] || product}</td>
+                  <td style="text-align:right">₦${productPrices[product]}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+        container.appendChild(section);
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const savedLang = localStorage.getItem("lang") || "en";
+      document.getElementById("language").value = savedLang;
+      switchLanguage();
+    });
+  </script>
+  <a href="index.html" style="text-decoration: none;"><p>Go to Userviews</p></a>
+</body>
+</html>

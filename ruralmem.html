@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Market Prices</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.11.0/dist/tf.min.js"></script>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f7fa;
+      padding: 1rem;
+      color: #333;
+      text-align: center;
+    }
+    #dash {
+      display: flex;
+      text-align: center;
+      /* justify-content: center;
+      align-items: center; */
+      height: 100px;
+      background-color: aquamarine;
+      padding: 0%;
+      margin-bottom: 1rem;
+    }
+    #subsub{
+      margin-top: -30px;
+      margin-bottom: 2%;
+    }
+    #title{
+      font-size: large;
+      text-align: center;
+    }
+   h1, h2 {
+      color: #2a4d69;
+    }
+    select, button {
+      width: auto;
+      height: 20px;
+      margin: 0.5rem;
+      border: none;
+      border-radius: 8px;
+      box-shadow: 2px 2px 2px;
+    }
+    table {
+      margin: 1rem auto;
+      width: 90%;
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    th, td {
+      padding: 0.8rem;
+      border-bottom: 1px solid #ccc;
+      text-align: left;
+    }
+    th {
+      background-color: #e9f0f7;
+    }
+    img {
+      width: 40px;
+      height: 40px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+    #iminfo{
+      width: 60px;
+      height: 50px;
+    }
+    #userInfo {
+      margin-top: 0.5rem;
+      font-size: 1rem;
+      font-weight: bolder;
+      color: #555;
+    }
+    .predicted {
+      font-size: 0.85rem;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="dash">
+    <div id="subdash">
+      <img src="image.png" alt="image not founds!" id="iminfo">
+     <div id="userInfo"></div>
+     </div>
+     <marquee behavior="scroll" direction="left"><h1 id="title">Market Prices</h1></marquee>
+  </div>
+  <div id="subsub">
+     <button onclick="logout()">Logout</button>
+    <a href="about.html"><button>about-me</button></a>
+  </div>
+   
+  <div>
+    <label for="language">Language:</label>
+    <select id="language" onchange="switchLanguage()">
+      <option value="en">English</option>
+      <option value="ar">Arabic</option>
+      <option value="sw">Swahili</option>
+      <option value="yo">Yoruba</option>
+      <option value="ig">Igbo</option>
+      <option value="ha">Hausa</option>
+    </select>
+
+    <label for="market">Market:</label>
+    <select id="market" onchange="loadMarketPrices()">
+      <option value="Potiskum">Potiskum</option>
+      <option value="Damaturu">Damaturu</option>
+      <option value="Maiduguri">Maiduguri</option>
+      <option value="Abuja">Abuja</option>
+      <option value="Lagos">Lagos</option>
+    </select>
+  </div>
+  <div id="marketPricesContainer"></div>
+
+  <hr />
+  <h2>Predict Future Price</h2>
+  <div>
+    <label for="predictMarket"> Market:</label>
+    <select id="predictMarket">
+      <option value="Potiskum">Potiskum</option>
+      <option value="Damaturu">Damaturu</option>
+      <option value="Maiduguri">Maiduguri</option>
+      <option value="Abuja">Abuja</option>
+      <option value="Lagos">Lagos</option>
+    </select>
+
+    <label for="predictProduct">Product:</label>
+    <select id="predictProduct">
+      <option value="Sorghum">Sorghum</option>
+      <option value="Groundnut">Groundnut</option>
+      <option value="Millet">Millet</option>
+      <option value="Corn">Corn</option>
+      <option value="Red Beans">Red Beans</option>
+      <option value="White Beans">White Beans</option>
+      <option value="Rice">Rice</option>
+      <option value="Maize">Maize</option>
+    </select>
+
+    <button onclick="predictPrice()">Predict</button>
+  </div>
+  <p id="predictionResult"></p>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC-eIJ4Cmrvn38xOIp31zK1SvQFymdKCNA",
+      authDomain: "aipowered-bfb63.firebaseapp.com",
+      databaseURL: "https://aipowered-bfb63-default-rtdb.firebaseio.com",
+      projectId: "aipowered-bfb63",
+      storageBucket: "aipowered-bfb63.appspot.com",
+      messagingSenderId: "1020732214288",
+      appId: "1:1020732214288:web:c726f6e69d77bf260b8e95"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    const translations = {
+      en: { title: "📈 Market Prices", products: { Sorghum: "Sorghum", Groundnut: "Groundnut", Millet: "Millet", Corn: "Corn", "Red Beans": "Red Beans", "White Beans": "White Beans", Rice: "Rice", Maize: "Maize" } },
+      ar: { title: "📈 أسعار السوق", products: { Sorghum: "الذرة الرفيعة", Groundnut: "الفول السوداني", Millet: "الدخن", Corn: "الذرة", "Red Beans": "فاصوليا حمراء", "White Beans": "فاصوليا بيضاء", Rice: "أرز", Maize: "ذرة" } },
+      sw: { title: "📈 Bei ya Soko", products: { Sorghum: "Mtama", Groundnut: "Karanga", Millet: "Uwele", Corn: "Mahindi", "Red Beans": "Maharagwe Mekundu", "White Beans": "Maharagwe Meupe", Rice: "Mchele", Maize: "Mahindi" } },
+      yo: { title: "📈 Awọn Owo Ọjà", products: { Sorghum: "Guinea corn", Groundnut: "Epa", Millet: "Okababa", Corn: "Agbado", "Red Beans": "Ewa pupa", "White Beans": "Ewa funfun", Rice: "Iresi", Maize: "Agbado" } },
+      ig: { title: "📈 Ahịa Ahịa", products: { Sorghum: "Okpuru oka", Groundnut: "Aki ukwu", Millet: "Joro", Corn: "Oka", "Red Beans": "Agwa uhie", "White Beans": "Agwa ọcha", Rice: "Osikapa", Maize: "Oka" } },
+      ha: { title: "📈 Farashin Kasuwa", products: { Sorghum: "Dawa", Groundnut: "Gyada", Millet: "Gero", Corn: "Masara", "Red Beans": "Wake ja", "White Beans": "Wake fari", Rice: "Shinkafa", Maize: "Masara" } }
+    };
+
+    const productImages = {
+      Sorghum: "sorghum.png",
+      Groundnut: "gnuts.png",
+      Millet: "millet.png",
+      Corn: "corn.png",
+      "Red Beans": "rbeans.png",
+      "White Beans": "wbeans.png",
+      Rice: "rice.png",
+      Maize: "corn.png"
+    };
+
+    let currentLang = "en";
+    function switchLanguage() {
+      currentLang = document.getElementById("language").value;
+      document.getElementById("title").innerText = translations[currentLang].title;
+      loadMarketPrices();
+    }
+
+    async function predictNextPrice(prices) {
+      if (prices.length < 2) return null;
+      const xs = tf.tensor1d(prices.slice(0, -1));
+      const ys = tf.tensor1d(prices.slice(1));
+      const model = tf.sequential();
+      model.add(tf.layers.dense({ units: 1, inputShape: [1] }));
+      model.compile({ optimizer: 'sgd', loss: 'meanSquaredError' });
+      await model.fit(xs, ys, { epochs: 50, verbose: 0 });
+      const last = tf.tensor1d([prices[prices.length - 1]]);
+      const prediction = model.predict(last);
+      return prediction.dataSync()[0].toFixed(2);
+    }
+
+    function loadMarketPrices() {
+      const market = document.getElementById("market").value;
+      const container = document.getElementById("marketPricesContainer");
+      container.innerHTML = "<p>Loading...</p>";
+
+      db.ref(`prices/${market}`).once("value", async snapshot => {
+        const data = snapshot.val();
+        if (!data) {
+          container.innerHTML = `<p>No prices available for ${market}.</p>`;
+          return;
+        }
+
+        const t = translations[currentLang].products;
+        const productsSorted = Object.keys(data).sort();
+
+        const tableRows = await Promise.all(productsSorted.map(async prod => {
+          let predicted = "";
+          const historyRef = db.ref(`history/${market}/${prod}`);
+          const historySnap = await historyRef.once("value");
+          const history = historySnap.val();
+          if (history && Array.isArray(history)) {
+            const pred = await predictNextPrice(history);
+            predicted = pred ? `<div class='predicted'>Predicted: ₦${pred}</div>` : "";
+          }
+          return `
+            <tr>
+              <td>
+                <img src="${productImages[prod] || ''}" alt="${prod}">${t[prod] || prod}
+              </td>
+              <td style="text-align:right">₦${data[prod]} ${predicted}</td>
+            </tr>
+          `;
+        }));
+
+        container.innerHTML = `
+          <h2>${market}</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>🛒 ${t["Product"] || "Product"}</th>
+                <th style="text-align:right">💰 Price (₦)</th>
+              </tr>
+            </thead>
+            <tbody>${tableRows.join("")}</tbody>
+          </table>
+        `;
+      });
+    }
+
+    async function predictPrice() {
+      const market = document.getElementById("predictMarket").value;
+      const product = document.getElementById("predictProduct").value;
+      const resultEl = document.getElementById("predictionResult");
+      resultEl.innerText = "Loading historical prices...";
+
+      try {
+        const snapshot = await db.ref(`price_history/${market}/${product}`).once("value");
+        const history = snapshot.val();
+
+        if (!history || Object.keys(history).length < 2) {
+          resultEl.innerText = "Not enough data to predict.";
+          return;
+        }
+
+        const timestamps = Object.keys(history).map(k => parseInt(k));
+        const prices = Object.values(history).map(v => parseFloat(v));
+        const baseTime = timestamps[0];
+        const timesNorm = timestamps.map(t => (t - baseTime) / (1000 * 60 * 60 * 24)); // days
+
+        const xs = tf.tensor2d(timesNorm, [timesNorm.length, 1]);
+        const ys = tf.tensor2d(prices, [prices.length, 1]);
+
+        const model = tf.sequential();
+        model.add(tf.layers.dense({ units: 1, inputShape: [1] }));
+        model.compile({ loss: 'meanSquaredError', optimizer: 'sgd' });
+        await model.fit(xs, ys, { epochs: 200 });
+
+        const nextDay = timesNorm[timesNorm.length - 1] + 1;
+        const prediction = model.predict(tf.tensor2d([nextDay], [1, 1]));
+        const price = prediction.dataSync()[0].toFixed(2);
+
+        resultEl.innerText = `📊 Predicted price for ${product} in ${market} tomorrow: ₦${price}`;
+        Swal.fire({
+              icon:'success',
+              title:'PREDICTION',
+              text:'price prediction successful',
+              footer:'&copyTea-boy13 2025'
+          });
+      } catch (error) {
+        console.error("Prediction error:", error);
+        resultEl.innerText = "Error predicting price.";
+      }
+    }
+
+    function logout() {
+      firebase.auth().signOut().then(() => {
+        window.location.href = "index.html";
+      });
+    }
+
+    function showUserInfo(user) {
+      const uid = user.uid;
+      db.ref("users/" + uid).once("value", snapshot => {
+        const userData = snapshot.val();
+        if (userData) {
+          document.getElementById("userInfo").innerText = `Welcome: ${userData.username}`;
+        }
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      auth.onAuthStateChanged(user => {
+        if (user) {
+          showUserInfo(user);
+          switchLanguage();
+        } else {
+          window.location.href = "index.html";
+        }
+      });
+    });
+  </script>
+</body>
+</html>
