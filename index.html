@@ -24,6 +24,9 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
     input, button {
+      border-radius: 10px;
+      border: none;
+      box-shadow: 1px 1px 1px;
       width: 100%;
       padding: 10px;
       margin-top: 10px;
@@ -95,12 +98,35 @@
       const confirm = document.getElementById("signupConfirm").value;
 
       if (!username || !phone || !password || !confirm) {
-        alert("Please fill all fields.");
+        // alert("Please fill all fields.");
+        Swal.fire({
+              icon:'error',
+              title:'ERROR',
+              text:'Please fill all fields are requred.',
+              footer:'&copyTea-boy13 2025'
+          });
+        return;
+      }
+
+       if (password.length < 6) {
+        // alert("Passwords most not be lessthan 6 char.");
+          Swal.fire({
+              icon:'error',
+              title:'SIGNUP ERROR',
+              text:'Passwords most not be lessthan 6 char!.',
+              footer:'&copyTea-boy13 2025'
+          });
         return;
       }
 
       if (password !== confirm) {
-        alert("Passwords do not match.");
+        // alert("Passwords do not match.");
+         Swal.fire({
+              icon:'error',
+              title:'SIGNUP ERROR',
+              text:'Passwords do not match!.',
+              footer:'&copyTea-boy13 2025'
+          });
         return;
       }
 
@@ -120,14 +146,8 @@
           window.location.href = "ruralmem.html"; 
         })
         .catch(error => {
-          // console.error("Signup error:", error.message);
-          // alert(error.message);
-           Swal.fire({
-              icon:'warning',
-              title:'SIGNUP ERROR',
-              text:'username does not support special characters, please use only letters no spaces or symbols',
-              footer:'&copyTea-boy13 2025'
-          });
+          console.error("Signup error:", error.message);
+          alert(error.message);
         });
     }
 
@@ -146,7 +166,6 @@
       }
 
       const email = `${username}@marketpulse.com`;
-
       auth.signInWithEmailAndPassword(email, password)
         .then(() => {
           alert("Login successful!");
