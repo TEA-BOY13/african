@@ -23,13 +23,13 @@
       /* justify-content: center;
       align-items: center; */
       height: 100px;
-      background-color: aquamarine;
+      background-color: #88c4f5;
       padding: 0%;
       margin-bottom: 1rem;
     }
     #subsub{
-      margin-top: -30px;
-      margin-bottom: 2%;
+      /* margin-top: -30px;
+      margin-bottom: 2%; */
     }
     #title{
       font-size: large;
@@ -83,6 +83,31 @@
       font-size: 0.85rem;
       color: #888;
     }
+    #cc{
+      height: auto;
+      width: 100%;
+      background-color: lightblue;
+      box-shadow: 1px 1px 1px grey;
+      margin-top: 2%;
+      display: flex;
+      justify-content: center;
+      float: left;
+      flex-wrap: wrap;
+      flex-direction: row;
+    }
+    #cp{
+      margin: auto;
+      text-align: center;
+      width: 100%;
+      height: auto;
+      background-color: #88c4f5;
+      margin-top: 2%;
+      display: flex;
+      justify-content: center;
+      float: left;
+      flex-wrap: wrap;
+      flex-direction: row;
+    }
   </style>
 </head>
 <body>
@@ -94,13 +119,14 @@
      </div>
      <marquee behavior="scroll" direction="left"><h1 id="title">Market Prices</h1></marquee>
   </div>
+
+  <div id="cc">
     
   <div>
     <label for="language">Language:</label>
     <select id="language" onchange="switchLanguage()">
       <option value="en">English</option>
       <option value="ar">Arabic</option>
-      <option value="sw">Swahili</option>
       <option value="yo">Yoruba</option>
       <option value="ig">Igbo</option>
       <option value="ha">Hausa</option>
@@ -111,22 +137,24 @@
       <option value="Potiskum">Potiskum</option>
       <option value="Damaturu">Damaturu</option>
       <option value="Maiduguri">Maiduguri</option>
-      <option value="Abuja">Abuja</option>
-      <option value="Lagos">Lagos</option>
+      <option value="Gombe">Gombe</option>
+      <option value="Bauchi">Bauchi</option>
     </select>
+  </div>
   </div>
   <div id="marketPricesContainer"></div>
 
   <hr />
-  <h2>Predict Future Price</h2>
+  <h3 style="margin-bottom: -2%;">Predict Price</h3>
+  <div id="cp">
   <div>
     <label for="predictMarket"> Market:</label>
     <select id="predictMarket">
       <option value="Potiskum">Potiskum</option>
       <option value="Damaturu">Damaturu</option>
       <option value="Maiduguri">Maiduguri</option>
-      <option value="Abuja">Abuja</option>
-      <option value="Lagos">Lagos</option>
+      <option value="Gombe">Gombe</option>
+      <option value="Bauchi">Bauchi</option>
     </select><br>
 
     <label for="predictProduct">Product:</label>
@@ -144,7 +172,7 @@
     <button onclick="predictPrice()">Click To Predict</button>
   </div>
   <p id="predictionResult"></p>
-
+  </div>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyC-eIJ4Cmrvn38xOIp31zK1SvQFymdKCNA",
@@ -160,12 +188,12 @@
     const db = firebase.database();
 
     const translations = {
-      en: { title: "📈 Market Prices", products: { Sorghum: "Sorghum", Groundnut: "Groundnut", Millet: "Millet", Corn: "Corn", "Red Beans": "Red Beans", "White Beans": "White Beans", Rice: "Rice", Maize: "Maize" } },
-      ar: { title: "📈 أسعار السوق", products: { Sorghum: "الذرة الرفيعة", Groundnut: "الفول السوداني", Millet: "الدخن", Corn: "الذرة", "Red Beans": "فاصوليا حمراء", "White Beans": "فاصوليا بيضاء", Rice: "أرز", Maize: "ذرة" } },
-      sw: { title: "📈 Bei ya Soko", products: { Sorghum: "Mtama", Groundnut: "Karanga", Millet: "Uwele", Corn: "Mahindi", "Red Beans": "Maharagwe Mekundu", "White Beans": "Maharagwe Meupe", Rice: "Mchele", Maize: "Mahindi" } },
-      yo: { title: "📈 Awọn Owo Ọjà", products: { Sorghum: "Guinea corn", Groundnut: "Epa", Millet: "Okababa", Corn: "Agbado", "Red Beans": "Ewa pupa", "White Beans": "Ewa funfun", Rice: "Iresi", Maize: "Agbado" } },
-      ig: { title: "📈 Ahịa Ahịa", products: { Sorghum: "Okpuru oka", Groundnut: "Aki ukwu", Millet: "Joro", Corn: "Oka", "Red Beans": "Agwa uhie", "White Beans": "Agwa ọcha", Rice: "Osikapa", Maize: "Oka" } },
-      ha: { title: "📈 Farashin Kasuwa", products: { Sorghum: "Dawa", Groundnut: "Gyada", Millet: "Gero", Corn: "Masara", "Red Beans": "Wake ja", "White Beans": "Wake fari", Rice: "Shinkafa", Maize: "Masara" } }
+      en: { title: " Market Prices", products: { Sorghum: "Sorghum", Groundnut: "Groundnut", Millet: "Millet", Corn: "Corn", "Red Beans": "Red Beans", "White Beans": "White Beans", Rice: "Rice", Maize: "Maize" } },
+      ar: { title: " أسعار السوق", products: { Sorghum: "الذرة الرفيعة", Groundnut: "الفول السوداني", Millet: "الدخن", Corn: "الذرة", "Red Beans": "فاصوليا حمراء", "White Beans": "فاصوليا بيضاء", Rice: "أرز", Maize: "ذرة" } },
+      sw: { title: " Bei ya Soko", products: { Sorghum: "Mtama", Groundnut: "Karanga", Millet: "Uwele", Corn: "Mahindi", "Red Beans": "Maharagwe Mekundu", "White Beans": "Maharagwe Meupe", Rice: "Mchele", Maize: "Mahindi" } },
+      yo: { title: " Awọn Owo Ọjà", products: { Sorghum: "Guinea corn", Groundnut: "Epa", Millet: "Okababa", Corn: "Agbado", "Red Beans": "Ewa pupa", "White Beans": "Ewa funfun", Rice: "Iresi", Maize: "Agbado" } },
+      ig: { title: " Ahịa Ahịa", products: { Sorghum: "Okpuru oka", Groundnut: "Aki ukwu", Millet: "Joro", Corn: "Oka", "Red Beans": "Agwa uhie", "White Beans": "Agwa ọcha", Rice: "Osikapa", Maize: "Oka" } },
+      ha: { title: " Farashin Kasuwa", products: { Sorghum: "Dawa", Groundnut: "Gyada", Millet: "Gero", Corn: "Masara", "Red Beans": "Wake ja", "White Beans": "Wake fari", Rice: "Shinkafa", Maize: "Masara" } }
     };
 
     const productImages = {
@@ -238,8 +266,8 @@
           <table>
             <thead>
               <tr>
-                <th>🛒 ${t["Product"] || "Product"}</th>
-                <th style="text-align:right">💰 Price (₦)</th>
+                <th> ${t["Product"] || "Product"}</th>
+                <th style="text-align:right"> Price (₦)</th>
               </tr>
             </thead>
             <tbody>${tableRows.join("")}</tbody>
@@ -280,7 +308,7 @@
         const prediction = model.predict(tf.tensor2d([nextDay], [1, 1]));
         const price = prediction.dataSync()[0].toFixed(2);
 
-        resultEl.innerText = `📊 Predicted price for ${product} in ${market} tomorrow: ₦${price}`;
+        resultEl.innerText = `Predicted price for ${product} in ${market} tomorrow: ₦${price}`;
         Swal.fire({
               icon:'success',
               title:'PREDICTION',
@@ -321,11 +349,11 @@
     });
   </script>
   <hr>
-   <a href="market.html" style="text-decoration: none;"><p>click here to update the price from your local area</p></a>
+   <!-- <a href="market.html" style="text-decoration: none;"><p>click here to update the price from your local area</p></a> -->
   <hr>
    <div id="subsub">
      <button onclick="logout()">Logout</button>
-    <a href="about.html"><button>about-me</button></a>
+    <a href="register.html"><button>register-SMS-alert</button></a>
   </div>
 </body>
 </html>
