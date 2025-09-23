@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title> MarketPulse SMS Registration</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <!-- <script src="afriantalk.js"></script> -->
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f7f9fc;
+      margin: 0;
+      padding: 2rem;
+      text-align: center;
+    }
+    h1 {
+      color: #2a4d69;
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    p {
+      color: #444;
+      margin-bottom: 2rem;
+    }
+    .form-box {
+      background: #fff;
+      max-width: 420px;
+      margin: auto;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      text-align: left;
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: bold;
+      color: #333;
+    }
+    input, select {
+      width: 100%;
+      padding: 0.8rem;
+      margin-top: 0.4rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 1.5rem;
+      width: 100%;
+      padding: 0.9rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: #007bff;
+      color: white;
+      transition: background-color 0.3s;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    footer {
+      margin-top: 2rem;
+      font-size: 0.85rem;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+  <h1>Market Price updates SMS Alerts</h1>
+  <p>Register your phone number to receive real-time price updates via SMS.</p>
+
+  <div class="form-box">
+    <label for="regPhone">Phone Number (international format):</label>
+    <input type="tel" id="regPhone" placeholder="+2348012345678">
+
+    <label for="regProduct">Select Product:</label>
+    <select id="regProduct"></select>
+
+    <button onclick="registerSMS()">Register for SMS</button>
+  </div>
+
+  <footer>&copy; Tea-boy13 2025</footer>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC-eIJ4Cmrvn38xOIp31zK1SvQFymdKCNA",
+      authDomain: "aipowered-bfb63.firebaseapp.com",
+      projectId: "aipowered-bfb63",
+      storageBucket: "aipowered-bfb63.appspot.com",
+      messagingSenderId: "1020732214288",
+      appId: "1:1020732214288:web:c726f6e69d77bf260b8e95",
+      measurementId: "G-PYFE0BJLMF"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const products = ["Sorghum","Groundnut","Millet","Corn","Red Beans","White Beans","Rice","Maize"];
+
+    function loadProducts() {
+      const regProduct = document.getElementById("regProduct");
+      products.forEach(prod => {
+        const option = document.createElement("option");
+        option.value = prod;
+        option.textContent = prod;
+        regProduct.appendChild(option);
+      });
+    }
+
+    function registerSMS() {
+      const phone = document.getElementById("regPhone").value.trim();
+      const product = document.getElementById("regProduct").value;
+
+      if (!phone || !phone.startsWith("+")) {
+        Swal.fire({
+          icon:'warning',
+          title:'Invalid Phone',
+          text:'Please enter phone in international format (e.g. +2348012345678)'
+        });
+        return;
+      }
+
+      db.ref("subscriptions").push({ phone, product })
+        .then(() => {
+          Swal.fire({
+            icon:'success',
+            title:'Registered!',
+            text:`You will now get SMS alerts for ${product} price changes.`
+          });
+          document.getElementById("regPhone").value = "";
+        })
+        .catch(err => {
+          console.error("Registration error:", err);
+          Swal.fire({icon:'error', title:'Error', text:'Could not register.'});
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", loadProducts);
+  </script>
+</body>
+</html>
