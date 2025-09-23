@@ -12,7 +12,7 @@
       font-family: 'Segoe UI', sans-serif;
       margin: 0;
       padding: 1rem;
-      background: #f0f8ff;
+      background: #88c4f5;
       color: #333;
       text-align: center;
     }
@@ -22,7 +22,7 @@
       margin-bottom: 0.5rem;
     }
     .form-section {
-      background: #fff;
+      background: aliceblue;
       padding: 1rem;
       margin: 1rem auto;
       max-width: 500px;
@@ -83,18 +83,18 @@
   </style>
 </head>
 <body>
-  <h1 id="title">📊 MarketPrice Update and Prediction Admin</h1>
-  <p id="subtitle">Add and Update Product Prices on Your Local Area</p>
+  <h1 id="title">MarketPrice Update and Prediction Admin</h1>
+ <marquee behavior="scroll" direction=""><p id="subtitle">Add and Update Product Prices on Your Local Area</p></marquee>
 
   <div class="form-section">
-    <label for="language">🌐 Language:</label>
+    <label for="language">Language:</label>
     <select id="language" onchange="switchLanguage()">
       <option value="en">English</option>
-      <option value="sw">Swahili</option>
+      <option value="ha">Hausa</option>
+      <option value="fu">fulfulde</option>
+      <option value="ar">Arabic</option>
       <option value="yo">Yoruba</option>
       <option value="ig">Igbo</option>
-      <option value="ha">Hausa</option>
-      <option value="ar">Arabic</option>
     </select>
 
     <label for="market" id="labelMarket">Market Location:</label>
@@ -102,26 +102,25 @@
       <option value="Potiskum">Potiskum</option>
       <option value="Damaturu">Damaturu</option>
       <option value="Maiduguri">Maiduguri</option>
-      <option value="Abuja">Abuja</option>
-      <option value="Lagos">Lagos</option>
+       <option value="Gombe">Gombe</option>
+      <option value="Bauchi">Bauchi</option>
     </select>
 
     <label for="product" id="labelProduct">Product:</label>
     <select id="product"></select>
-
     <button id="viewBtn" onclick="getPrice()">View Price</button>
   </div>
 
   <div id="result" class="price-box"></div>
 
   <div class="form-section">
-    <h2 id="submitTitle">📥 Submit a Price</h2>
+    <h2 id="submitTitle">Submit a Price</h2>
     <input type="number" id="newPrice" placeholder="Enter price in ₦">
     <button id="submitBtn" onclick="submitPrice()">Submit</button>
   </div>
 
   <div class="form-section">
-    <h2>📋 All Market Prices</h2>
+    <h2>All Market Prices</h2>
     <div id="allMarketsContainer"></div>
   </div>
 
@@ -141,29 +140,38 @@
 
     const translations = {
       en: {
-        title: "📊 MarketPrice Update and Prediction Admin", subtitle: "Add and Update Product Prices on Your Local Area",
+        title: "MarketPrice Update and Prediction Admin", subtitle: "Add and Update Product Prices on Your Local Area",
         marketLabel: "Market Location:", productLabel: "Product:", viewBtn: "View Price",
-        submitTitle: "📥 Submit a Price", submitBtn: "Submit",
+        submitTitle: "Submit a Price", submitBtn: "Submit",
         products: {
           Sorghum: "Sorghum", Groundnut: "Groundnut", Millet: "Millet",
           Corn: "Corn", "Red Beans": "Red Beans", "White Beans": "White Beans",
           Rice: "Rice", Maize: "Maize"
         }
       },
-      sw: {
-        title: "📊 Dashibodi ya Bei ya Soko", subtitle: "Ongeza na Sasisha Bei ya Bidhaa kwa Eneo Lako",
-        marketLabel: "Soko:", productLabel: "Bidhaa:", viewBtn: "Angalia Bei",
-        submitTitle: "📥 Tuma Bei", submitBtn: "Tuma",
-        products: {
-          Sorghum: "Mtama", Groundnut: "Karanga", Millet: "Uwele",
-          Corn: "Mahindi", "Red Beans": "Maharagwe Mekundu", "White Beans": "Maharagwe Meupe",
-          Rice: "Mchele", Maize: "Mahindi"
-        }
-      },
+      fu: {
+    title: "Jaaɓnirde ɗiɗi e Hesɗitorde Njaruuji Soodii", 
+    subtitle: "Ɓeydu e Hesɗitɗo Njaruuji Kayan e Doggol Mawnde maa",
+    marketLabel: "Doggol Soodii:", 
+    productLabel: "Kayan:", 
+    viewBtn: "Hollu Njaruuji",
+    submitTitle: "Naatnu Njaruuji", 
+    submitBtn: "Naatnu",
+    products: {
+      Sorghum: "Ngariya", 
+      Groundnut: "Gubaa", 
+      Millet: "Masara ɗiɗi",
+      Corn: "Masara", 
+      "Red Beans": "Botorɗe Wuro", 
+      "White Beans": "Botorɗe Wonndi",
+      Rice: "Maalo", 
+      Maize: "Masara"
+    }
+  },
       yo: {
-        title: "📊 Iṣakoso Ọja ati Imudojuiwọn", subtitle: "Fi kun ki o ṣe imudojuiwọn awọn owo ọja agbegbe rẹ",
+        title: "Iṣakoso Ọja ati Imudojuiwọn", subtitle: "Fi kun ki o ṣe imudojuiwọn awọn owo ọja agbegbe rẹ",
         marketLabel: "Ọja:", productLabel: "Ọja naa:", viewBtn: "Wo Iye",
-        submitTitle: "📥 Fi Iye Ọja Ranṣẹ", submitBtn: "Firanṣẹ",
+        submitTitle: "Fi Iye Ọja Ranṣẹ", submitBtn: "Firanṣẹ",
         products: {
           Sorghum: "Dawa", Groundnut: "Epa", Millet: "Okababa",
           Corn: "Agbado", "Red Beans": "Ewa pupa", "White Beans": "Ewa funfun",
@@ -171,9 +179,9 @@
         }
       },
       ig: {
-        title: "📊 Nchịkọta Ahịa na Nwelite", subtitle: "Tinye ma melite ọnụ ahịa ngwaahịa n’ógbè gị",
+        title: "Nchịkọta Ahịa na Nwelite", subtitle: "Tinye ma melite ọnụ ahịa ngwaahịa n’ógbè gị",
         marketLabel: "Ahịa:", productLabel: "Ngwaahịa:", viewBtn: "Lee Ọnụahịa",
-        submitTitle: "📥 Nyefee Ọnụahịa", submitBtn: "Nyefee",
+        submitTitle: "Nyefee Ọnụahịa", submitBtn: "Nyefee",
         products: {
           Sorghum: "Oka Dawa", Groundnut: "Aki Ukpa", Millet: "Acha",
           Corn: "Oka", "Red Beans": "Agwa Ọbara", "White Beans": "Agwa Ọcha",
@@ -181,9 +189,9 @@
         }
       },
       ha: {
-        title: "📊 Sabon Shafin Farashin Kasuwa", subtitle: "Ƙara da Sabunta Farashin Samfura a Yankinku",
+        title: "Sabon Shafin Farashin Kasuwa", subtitle: "Ƙara da Sabunta Farashin Samfura a Yankinku",
         marketLabel: "Wurin Kasuwa:", productLabel: "Samfur:", viewBtn: "Duba Farashi",
-        submitTitle: "📥 Gabatar da Farashi", submitBtn: "Aika",
+        submitTitle: "Gabatar da Farashi", submitBtn: "Aika",
         products: {
           Sorghum: "Dawa", Groundnut: "Gyada", Millet: "Gero",
           Corn: "Masara", "Red Beans": "Wake Ja", "White Beans": "Wake Fari",
@@ -191,9 +199,9 @@
         }
       },
       ar: {
-        title: "📊 تحديث وتنبؤ أسعار السوق", subtitle: "أضف وحدث أسعار المنتجات في منطقتك المحلية",
+        title: "تحديث وتنبؤ أسعار السوق", subtitle: "أضف وحدث أسعار المنتجات في منطقتك المحلية",
         marketLabel: "الموقع:", productLabel: "المنتج:", viewBtn: "عرض السعر",
-        submitTitle: "📥 إرسال السعر", submitBtn: "إرسال",
+        submitTitle: " إرسال السعر", submitBtn: "إرسال",
         products: {
           Sorghum: "الذرة الرفيعة", Groundnut: "الفول السوداني", Millet: "الدخن",
           Corn: "الذرة", "Red Beans": "فاصولياء حمراء", "White Beans": "فاصولياء بيضاء",
