@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #88c4f5;
+      padding: 2rem;
+      text-align: center;
+    }
+    .form-box {
+      max-width: 400px;
+      margin: auto;
+      background: aliceblue;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    input, button {
+      border-radius: 10px;
+      border: none;
+      box-shadow: 1px 1px 1px;
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 1rem;
+    }
+    button {
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="form-box" id="loginForm">
+    <h2>Admin Login</h2>
+    <input type="email" id="loginEmail" placeholder="Email" required>
+    <input type="password" id="loginPassword" placeholder="Password" required>
+    <button onclick="login()">Login</button>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC-eIJ4Cmrvn38xOIp31zK1SvQFymdKCNA",
+      authDomain: "aipowered-bfb63.firebaseapp.com",
+      databaseURL: "https://aipowered-bfb63-default-rtdb.firebaseio.com",
+      projectId: "aipowered-bfb63",
+      storageBucket: "aipowered-bfb63.appspot.com",
+      messagingSenderId: "1020732214288",
+      appId: "1:1020732214288:web:c726f6e69d77bf260b8e95"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    function login() {
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value;
+
+      if (!email || !password) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'LOGIN ERROR',
+          text: 'Please enter email and password',
+          footer: '&copy; Tea-boy13 2025'
+        });
+        return;
+      }
+
+      auth.signInWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          const uid = userCredential.user.uid;
+
+          // Check if this user exists in "admins"
+          db.ref("admins/" + uid).once("value").then(snapshot => {
+            if (snapshot.exists()) {
+              Swal.fire({
+                icon: 'success',
+                title: 'Login Successful',
+                text: 'Redirecting...'
+              });
+              setTimeout(() => {
+                window.location.href = "market.html"; // admin dashboard
+              }, 1500);
+            } else {
+              auth.signOut();
+              Swal.fire({
+                icon: 'error',
+                title: 'ACCESS DENIED',
+                text: 'This account is not an admin!',
+                footer: '&copy; Tea-boy13 2025'
+              });
+            }
+          });
+        })
+        .catch(error => {
+          console.error("Login error:", error.message);
+          Swal.fire({
+            icon: 'error',
+            title: 'LOGIN ERROR',
+            text: error.message,
+            footer: '&copy; Tea-boy13 2025'
+          });
+        });
+    }
+  </script>
+</body>
+</html>
