@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Signup</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f9fa;
+      padding: 2rem;
+      text-align: center;
+    }
+    .form-box {
+      max-width: 400px;
+      margin: auto;
+      background: #fff;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    input, button {
+      border-radius: 10px;
+      border: none;
+      box-shadow: 1px 1px 1px;
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 1rem;
+    }
+    button {
+      background-color: #28a745;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #1e7e34;
+    }
+    .toggle {
+      margin-top: 1rem;
+      color: #007bff;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="form-box">
+    <h2>Admin Sign Up</h2>
+    <input type="email" id="signupEmail" placeholder="Email" required>
+    <input type="password" id="signupPassword" placeholder="Password" required>
+    <input type="password" id="signupConfirm" placeholder="Confirm Password" required>
+    <button onclick="signUp()">Sign Up</button>
+    <div class="toggle" onclick="goToLogin()">Already have an account? Login</div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyC-eIJ4Cmrvn38xOIp31zK1SvQFymdKCNA",
+      authDomain: "aipowered-bfb63.firebaseapp.com",
+      databaseURL: "https://aipowered-bfb63-default-rtdb.firebaseio.com",
+      projectId: "aipowered-bfb63",
+      storageBucket: "aipowered-bfb63.appspot.com",
+      messagingSenderId: "1020732214288",
+      appId: "1:1020732214288:web:c726f6e69d77bf260b8e95"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.database();
+
+    function signUp() {
+      const email = document.getElementById("signupEmail").value.trim();
+      const password = document.getElementById("signupPassword").value;
+      const confirm = document.getElementById("signupConfirm").value;
+
+      if (!email || !password || !confirm) {
+        Swal.fire({
+          icon: 'error',
+          title: 'SIGNUP ERROR',
+          text: 'Please fill all fields.',
+          footer: '&copy; Tea-boy13 2025'
+        });
+        return;
+      }
+
+      if (password.length < 6) {
+        Swal.fire({
+          icon: 'error',
+          title: 'SIGNUP ERROR',
+          text: 'Password must be at least 6 characters.',
+          footer: '&copy; Tea-boy13 2025'
+        });
+        return;
+      }
+
+      if (password !== confirm) {
+        Swal.fire({
+          icon: 'error',
+          title: 'SIGNUP ERROR',
+          text: 'Passwords do not match!',
+          footer: '&copy; Tea-boy13 2025'
+        });
+        return;
+      }
+
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          const uid = userCredential.user.uid;
+          // Save admin info separately
+          return db.ref("admins/" + uid).set({
+            email: email,
+            role: "admin",
+            createdAt: new Date().toISOString()
+          });
+        })
+        .then(() => {
+          Swal.fire({
+            icon: 'success',
+            title: 'Admin Signup Successful',
+            text: 'Redirecting to login...'
+          });
+          setTimeout(() => {
+            window.location.href = "adminlogin.html"; // redirect to your admin login page
+          }, 1500);
+        })
+        .catch(error => {
+          console.error("Signup error:", error.message);
+          Swal.fire({
+            icon: 'error',
+            title: 'SIGNUP ERROR',
+            text: error.message,
+            footer: '&copy; Tea-boy13 2025'
+          });
+        });
+    }
+
+    function goToLogin() {
+      window.location.href = "adminlogin.html"; // link to your admin login page
+    }
+  </script>
+</body>
+</html>
