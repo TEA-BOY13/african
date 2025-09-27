@@ -127,9 +127,11 @@
     <select id="language" onchange="switchLanguage()">
       <option value="en">English</option>
       <option value="ar">Arabic</option>
+      <option value="ff">Fulani</option>
       <option value="yo">Yoruba</option>
       <option value="ig">Igbo</option>
       <option value="ha">Hausa</option>
+      <option value="kr">Kanuri</option>
     </select><br>
 
     <label for="market">Market:</label>
@@ -190,10 +192,11 @@
     const translations = {
       en: { title: " Market Prices", products: { Sorghum: "Sorghum", Groundnut: "Groundnut", Millet: "Millet", Corn: "Corn", "Red Beans": "Red Beans", "White Beans": "White Beans", Rice: "Rice", Maize: "Maize" } },
       ar: { title: " أسعار السوق", products: { Sorghum: "الذرة الرفيعة", Groundnut: "الفول السوداني", Millet: "الدخن", Corn: "الذرة", "Red Beans": "فاصوليا حمراء", "White Beans": "فاصوليا بيضاء", Rice: "أرز", Maize: "ذرة" } },
-      sw: { title: " Bei ya Soko", products: { Sorghum: "Mtama", Groundnut: "Karanga", Millet: "Uwele", Corn: "Mahindi", "Red Beans": "Maharagwe Mekundu", "White Beans": "Maharagwe Meupe", Rice: "Mchele", Maize: "Mahindi" } },
+       ff: {title: "Gollol Dowrowol" , products: {Sorghum: "Masaraaji", Groundnut: "Gere", Millet: "Miye", Corn: "Bilaangi", "Red Beans": "Njaare Wuro", "White Beans": "Njaare Pudde", Rice: "Maalo", Maize: "Bilaangi" } },
       yo: { title: " Awọn Owo Ọjà", products: { Sorghum: "Guinea corn", Groundnut: "Epa", Millet: "Okababa", Corn: "Agbado", "Red Beans": "Ewa pupa", "White Beans": "Ewa funfun", Rice: "Iresi", Maize: "Agbado" } },
       ig: { title: " Ahịa Ahịa", products: { Sorghum: "Okpuru oka", Groundnut: "Aki ukwu", Millet: "Joro", Corn: "Oka", "Red Beans": "Agwa uhie", "White Beans": "Agwa ọcha", Rice: "Osikapa", Maize: "Oka" } },
-      ha: { title: " Farashin Kasuwa", products: { Sorghum: "Dawa", Groundnut: "Gyada", Millet: "Gero", Corn: "Masara", "Red Beans": "Wake ja", "White Beans": "Wake fari", Rice: "Shinkafa", Maize: "Masara" } }
+      ha: { title: " Farashin Kasuwa", products: { Sorghum: "Dawa", Groundnut: "Gyada", Millet: "Gero", Corn: "Masara", "Red Beans": "Wake ja", "White Beans": "Wake fari", Rice: "Shinkafa", Maize: "Masara" } },
+       kr: {title: "Bé Táfa Sùwò", products: {Sorghum: "Búlá", Groundnut: "Gwaɗi", Millet: "Màná", Corn: "Masar", "Red Beans": "Bági Gúrú", "White Beans": "Bági Fárù", Rice: "Shinkafa", Maize: "Masar" } },
     };
 
     const productImages = {
@@ -353,7 +356,7 @@
   <hr>
    <div id="subsub">
      <button onclick="logout()">Logout</button>
-    <a href="register.html"><button>register-SMS-alert</button></a>
+    <!-- <a href="register.html"><button>register-SMS-alert</button></a> -->
   </div>
 </body>
 </html>
